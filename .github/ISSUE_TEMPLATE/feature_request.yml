@@ -1,5 +1,5 @@
-name: ✨ Feature Request
-description: Suggest a feature
+name: ✨ Feature Request or Module
+description: Suggest a feature or Module
 title: "[Feature Request]: "
 body:
   - type: checkboxes
