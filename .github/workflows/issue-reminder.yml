@@ -1,0 +1,48 @@
+name: Issue Reminder
+
+on:
+  schedule:
+    # Runs every Monday, Wednesday, and Saturday at 9 AM UTC
+    - cron: '0 16 * * 1'  # Monday
+    - cron: '0 9 * * 3'  # Wednesday
+    - cron: '0 9 * * 6'  # Saturday
+
+jobs:
+  remind_open_issues:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: List Open Issues and Send Reminder
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+            });
+
+            if (issues.length === 0) {
+              console.log('No open issues found.');
+              return;
+            }
+
+            console.log(`Found ${issues.length} open issues.`);
+
+            for (const issue of issues) {
+              const assignees = issue.assignees.map(a => `@${a.login}`).join(', ');
+
+              const message = assignees 
+                ? `⏰ **Reminder:** This issue is still open. Please review it. ${assignees}` 
+                : `⏰ **Reminder:** This issue is still open. Please review it.`;
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: message
+              });
+            }
