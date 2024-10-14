@@ -3,7 +3,7 @@ name: Daily Issue Update
 on:
   schedule:
     # Run at 8:00 AM IST daily (IST = UTC + 5:30)
-    - cron: '20 11 * * *'  # Equivalent to 8 AM IST daily
+    - cron: '20 11 * * *'  # Equivalent to 8 AM IST dailys
 
 jobs:
   update-issues:
