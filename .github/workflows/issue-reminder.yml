@@ -2,8 +2,13 @@ name: Issue Reminder
 
 on:
   schedule:
-    # Runs every Monday at 4:30 PM IST (11:00 AM UTC)
-    - cron: '0 11 * * 1'
+    # Run every Monday, Wednesday, and Saturday at 4:30 PM IST (11:00 AM UTC)
+    - cron: '0 11 * * 1'  # Monday 4:30 PM IST
+    - cron: '0 11 * * 3'  # Wednesday 4:30 PM IST
+    - cron: '0 11 * * 6'  # Saturday 4:30 PM IST
+
+permissions:
+  issues: write  # Allow the workflow to create comments on issues
 
 jobs:
   remind_open_issues:
@@ -13,7 +18,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: List Open Issues and Send Reminder
+      - name: List Open Issues and Send Reminders
         uses: actions/github-script@v6
         with:
           script: |
@@ -33,14 +38,14 @@ jobs:
             for (const issue of issues) {
               const assignees = issue.assignees.map(a => `@${a.login}`).join(', ');
 
-              const message = assignees 
-                ? `⏰ **Reminder:** This issue is still open. Please review it. ${assignees}` 
+              const message = assignees
+                ? `⏰ **Reminder:** This issue is still open. Please review it. ${assignees}`
                 : `⏰ **Reminder:** This issue is still open. Please review it.`;
 
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issue.number,
-                body: message
+                body: message,
               });
             }
